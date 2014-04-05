@@ -1,49 +1,61 @@
 <!DOCTYPE HTML>
 <html>
-  <head>
-    <style>
-      body {
-        margin: 0px;
-        padding: 0px;
-      }
-    </style>
-  </head>
-  <body>
-    <div id="container"></div>
-    <!--<script src="http://d3lp1msu2r81bx.cloudfront.net/kjs/js/lib/kinetic-v5.0.2.min.js"></script>-->
-    <script src="javascripts/kinetic.js"></script>
-    <script defer="defer">
-      var stage = new Kinetic.Stage({
-        container: 'container',
-        width: window.innerWidth,
-        height: window.innerHeight
-      });
-      var layer = new Kinetic.Layer();
+    <head>
+        <style>
+			body {
+				margin: 0px;
+				padding: 0px;
+			}
+        </style>
+    </head>
+    <body>
+        <div id="container"></div>
+        <script src="javascripts/kinetic.js"></script>
+        <script defer="defer">
+			var stage = new Kinetic.Stage({
+				container : 'container',
+				width : window.innerWidth,
+				height : window.innerHeight
+			});
+			var layer = new Kinetic.Layer();
 
-      var hexagon = new Kinetic.RegularPolygon({
-        x: stage.width()/2,
-        y: stage.height()/2,
-        sides: 6,
-        radius: 70,
-        fill: 'red',
-        stroke: 'black',
-        strokeWidth: 4
-      });
+			var hexagon = new Kinetic.RegularPolygon({
+				x : stage.width() / 2,
+				y : stage.height() / 2,
+				sides : 6,
+				radius : 70,
+				fill : 'red',
+				stroke : 'black',
+				strokeWidth : 4
+			});
 
-      layer.add(hexagon);
-      stage.add(layer);
+			layer.add(hexagon);
+			stage.add(layer);
 
-      var amplitude = 150;
-      var period = 2000;
-      // in ms
-      var centerX = stage.width()/2;
+			var amplitude = 150;
+			var period = 2000;
+			// in ms
+			var centerX = stage.width() / 2;
 
-      var anim = new Kinetic.Animation(function(frame) {
-        hexagon.setX(amplitude * Math.sin(frame.time * 2 * Math.PI / period) + centerX);
-      }, layer);
+			var anim = new Kinetic.Animation(function(frame) {
+				hexagon.setX(amplitude * Math.sin(frame.time * 2 * Math.PI / period) + centerX);
+			}, layer);
 
-      anim.start();
+			anim.start();
 
-    </script>
-  </body>
+        </script>
+        <div id="socketstest">
+
+        </div>
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+			var socket = io.connect('http://http://10.34.190.89:3000/');
+			socket.on('news', function(data) {
+				console.log(data);
+				socket.emit('my other event', {
+					my : 'data'
+				});
+			});
+        </script>
+    </body>
 </html>
