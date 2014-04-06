@@ -132,8 +132,8 @@ function makePositionController(width, height){
     transy =  transx + 40*Math.cos(Math.abs(angle));
   	transx -= 40*Math.sin(angle);*/
 
-    accumulatedY += 10 * Math.cos(Math.abs(angle));//transx;
-    accumulatedX += 10 * Math.sin(-angle);//transy;
+    accumulatedY += 5 * Math.cos(Math.abs(angle));//transx;
+    accumulatedX += 5 * Math.sin(-angle);//transy;
 }
 
   return control;

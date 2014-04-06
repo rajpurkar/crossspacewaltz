@@ -26,13 +26,14 @@
         </style>
     </head>
     <body>
-        <div id="headtrackrContainer" style="z-index:102;position:absolute">
+       <div id="headtrackrContainer" style="z-index:102;position:absolute">
             <canvas id="headtrackrCanvas" width="320" height="240"></canvas>
         </div>
-        <div style="z-index:100;position:absolute">
+    	 <div style="z-index:100;position:absolute">
             <video id="headtrackrVideo" autoplay loop class="mirror"></video>
         </div>
-
+        <div id="myaudio" style="z-index:106;position:absolute"></div>
+        </div>
 
         <div id="container">
 
@@ -42,8 +43,6 @@
         <div id='gameArea'>
             <canvas id='myCanvas'></canvas>
             <div id='statsPanel'></div>
-        </div>
-        <div id="myaudio"></div>
         </div>
         <script src="/socket.io/socket.io.js"></script>
         <script src="javascripts/jquery.js"></script>
@@ -99,8 +98,8 @@
 			var canvas = document.getElementById('myCanvas');
 			var context = canvas.getContext('2d');
 
-			var WORLD_WIDTH = canvas.width * 4;
-			var WORLD_HEIGHT = canvas.height * 4;
+			var WORLD_WIDTH = canvas.width * 1.5;
+			var WORLD_HEIGHT = canvas.height * 1.5;
 
 			var painters = {};
 
@@ -111,7 +110,7 @@
             var map = new Map(WORLD_WIDTH, WORLD_HEIGHT, "images/brick.jpg");
 	      	function initialize(){
 	        	me = painters[socket.id] = new Painter();
-	        	camera.follow(me, canvas.width / 10, canvas.height / 10);
+	        	camera.follow(me, canvas.width / 6, canvas.height / 6);
 	      	}
 
 			function writeMessage() {
@@ -150,7 +149,7 @@
 				});
 			}
 
-			var velocity = 10;
+			var velocity = 3;
 
 			function moveViewWithMouse() {
 				if (me === null)
@@ -189,7 +188,7 @@
 			animate();
 
 			socket.on('pos', function(data) {
-				painters[data.id] = painters[data.id] || new Painter("blue");
+				painters[data.id] = painters[data.id] || new Painter("173,255,47");
 				painters[data.id].update(data.pos.x, data.pos.y, data.pos.theta);
 			});
 
