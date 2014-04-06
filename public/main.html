@@ -186,7 +186,7 @@
 			animate();
 
 			socket.on('pos', function(data) {
-				painters[data.id] = painters[data.id] || new Painter("173,255,47");
+				painters[data.id] = painters[data.id] || new Painter((Math.random().toString(16) + '000000').slice(2, 8));
 				painters[data.id].update(data.pos.x, data.pos.y, data.pos.theta);
 			});
 

@@ -34,7 +34,7 @@ Painter = function() {
 		this.y = 0;
 		this.theta = 0;
 		this.exposes = [];
-		this.c = color || '255,40,155';
+		this.c = color || 'rgba(255,40,155,1)';
 		this.radius = 70;
 		this.active = true;
 		this.lastmove = {
@@ -77,7 +77,7 @@ Painter = function() {
 		var outerthis = this;
 
 		this.exposes.forEach(function(data) {
-			drawCircle(context, data.x - xView, data.y - yView, 0.1 + data.r + Math.pow(relevant.average(), 2) / 1000, 2, 'rgba(' + outerthis.c + ',0.9)', true);
+			drawCircle(context, data.x - xView, data.y - yView, 0.1 + data.r + Math.pow(relevant.average(), 2) / 1000, 2, outerthis.c, true);
 			if(data.r < 30){
 				data.r += (Math.random() - 0.5) * 4;
 			}else{
@@ -94,7 +94,7 @@ Painter = function() {
 				var xrand = Math.random();
 				var yrand = Math.random();
 				var magnitude = relevant[i];
-				drawCircle(context, this.x + (xrand - 0.5) * 10 - xView, this.y - yView + (yrand - 0.5) * 10, 20 + relevant[i] * 0.5, 'rgba(' + outerthis.c + ',0.9)', false);
+				drawCircle(context, this.x + (xrand - 0.5) * 10 - xView, this.y - yView + (yrand - 0.5) * 10, 20 + relevant[i] * 0.5, outerthis.c, false);
 			}
 		}
 
