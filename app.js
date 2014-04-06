@@ -228,7 +228,7 @@ io.sockets.on('connection', function(socket) {
 	});
 
 	socket.on('getPositions', function() {
-		socket.emit('pos', getPositions());
+		socket.volatile.emit('pos', getPositions());
 	});
 
 	socket.on('shoot', function() {
@@ -241,9 +241,6 @@ io.sockets.on('connection', function(socket) {
 		})
 		delete players[socket.id];
 	})
-	socket.emit('news', {
-		hello : 'world'
-	});
 
 	socket.on('playerpos', function(pos) {
 		var player = players[socket.id];

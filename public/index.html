@@ -13,7 +13,7 @@
         <script src="/socket.io/socket.io.js"></script>
         <script type='text/javascript'>
 			var socket = io.connect('http://10.34.190.89:3000/');
-            socket.emit('ready');
+			socket.emit('ready');
 
 			function sendShoot() {
 				Sound.play("shoot");
@@ -21,7 +21,7 @@
 			}
 
 			//front end
-			var FPS = 15;
+			var FPS = 8;
 			var CANVAS_WIDTH = 480;
 			var CANVAS_HEIGHT = 320;
 			var canvasElement = $("<canvas width='" + CANVAS_WIDTH + "' height='" + CANVAS_HEIGHT + "'></canvas");
@@ -61,11 +61,11 @@
 
 				canvas.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-                for (key in players){
-                    player = players[key];
-                    drawPlayer(player);
+				for (key in players) {
+					player = players[key];
+					drawPlayer(player);
 
-                }
+				}
 
 				bullets.forEach(function(bullet) {
 					drawBullet(bullet);
@@ -81,23 +81,34 @@
 				'y' : 270
 			};
 
-			         function getMousePos(canvas, evt) {
-                var rect = canvas.getBoundingClientRect();
-                return {
-                    x : evt.clientX - rect.left,
-                    y : evt.clientY - rect.top
-                };
-            }
-
-
-
+			function getMousePos(canvas, evt) {
+				var rect = canvas.getBoundingClientRect();
+				return {
+					x : evt.clientX - rect.left,
+					y : evt.clientY - rect.top
+				};
+			}
 
 			function playerMotionUpdate() {
+			    if (keydown.up) {
+                    //todo send player message
+                    myPos.y += -5;
+                }
+                if (keydown.down) {
+                    //todo send player message
+                    myPos.y += 5;
+                }
 				if (keydown.left) {
 					//todo send player message
 					myPos.x += -5;
 				} else if (keydown.right) {
 					myPos.x += 5;
+				}
+				if (keydown.left || keydown.right) {
+					socket.emit('playerpos', {
+						'x' : myPos.x,
+						'y' : myPos.y
+					});
 				}
 			}
 
@@ -106,10 +117,6 @@
 					sendShoot();
 				}
 				playerMotionUpdate();
-				socket.emit('playerpos', {
-                 'x' : myPos.x,
-                 'y' : myPos.y
-             });
 			}
 
         </script>
