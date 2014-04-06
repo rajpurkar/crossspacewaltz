@@ -11,8 +11,9 @@
     </head>
     <body>
         <script src="/socket.io/socket.io.js"></script>
+        <script src="javascripts/game.js"></script>
         <script type='text/javascript'>
-			var socket = io.connect('http://10.34.190.89:3000/');
+			var socket = io.connect('http://10.34.180.109:3000/');
 			socket.emit('ready');
 
 			function sendShoot() {
@@ -29,50 +30,50 @@
 			canvasElement.appendTo('body');
 
 			setInterval(function() {
-				update1();
-				//console.log("here");
-				socket.emit('getPositions');
-				socket.on('pos', function(data) {
-					poses = data;
-					draw(poses);
+				update();
+				socket.emit('getGame');
+				socket.on('game', function(game) {
+					draw(game);
 				});
 			}, 1000 / FPS);
 
 			var plsp = Sprite("player");
 			var ensp = Sprite("enemy");
 
-			function drawPlayer(player) {
-				plsp.draw(canvas, player.x, player.y);
+			function drawPlayer(player, xView, yView) {
+				plsp.draw(canvas, player.x - xView, player.y - yView);
 			}
 
-			function drawEnemy(enemy) {
-				ensp.draw(canvas, enemy.x, enemy.y);
+			function drawEnemy(enemy, xView, yView) {
+				ensp.draw(canvas, enemy.x - xView, enemy.y - yView);
 			}
 
-			function drawBullet(bullet) {
+			function drawBullet(bullet, xView, yView) {
 				canvas.fillStyle = bullet.color;
-				canvas.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+				canvas.fillRect(bullet.x - xView, bullet.y - yView, bullet.width, bullet.height);
 			}
 
-			function draw() {
-				var players = poses.players;
-				var bullets = poses.bullets;
-				var enem = poses.enemies;
+			function draw(game) {
+				var players = game.players;
+				var bullets = game.bullets;
+				var enem = game.enemies;
 
 				canvas.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
+				var xView = camera.xView;
+				var yView = camera.yView;
+
 				for (key in players) {
 					player = players[key];
-					drawPlayer(player);
-
+					drawPlayer(player, xView, yView);
 				}
 
 				bullets.forEach(function(bullet) {
-					drawBullet(bullet);
+					drawBullet(bullet, xView, yView);
 				});
 
 				enem.forEach(function(enemy) {
-					drawEnemy(enemy);
+					drawEnemy(enemy, xView, yView);
 				});
 			}
 
@@ -80,6 +81,10 @@
 				'x' : 50,
 				'y' : 270
 			};
+
+			// setup the magic camera !!!
+			var camera = new GameObj.Camera(0, 0, canvas.width, canvas.height, canvas.width * 3, canvas.height * 3);		
+			camera.follow(myPos, canvas.width/2, canvas.height/2);
 
 			function getMousePos(canvas, evt) {
 				var rect = canvas.getBoundingClientRect();
@@ -112,11 +117,12 @@
 				}
 			}
 
-			function update1() {
+			function update() {
 				if (keydown.space) {
 					sendShoot();
 				}
 				playerMotionUpdate();
+				camera.update();
 			}
 
         </script>

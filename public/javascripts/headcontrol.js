@@ -110,7 +110,21 @@ function makePositionController(width, height){
     // y <- [-1, 1]
     x = -2 * (x / width - 0.5);
     y =  2 * (y / height - 0.5);
-    
+
+    // like arrow keys
+    /*thresh = 0.1;
+    if (x > thresh || x < -thresh){
+      x = x < 0 ? -1 : 1;
+    }else{
+      x = 0;
+    }
+
+    if (y > thresh / 2 || y < -thresh){
+      y = y < 0 ? -1 : 1;
+    }else{
+      y = 0;
+    }*/
+
     // for position based
     // accumulatedX += x * control.velocity.x;
     // accumulatedY += y * control.velocity.y;
