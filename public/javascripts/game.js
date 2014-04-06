@@ -255,7 +255,6 @@ Game.prototype.update = function(){
 
 	if (this.enemies.length < 10) {
 		this.enemies.push(new Enemy(worldWidth / 4 + Math.random() * worldWidth / 2, 0));
-		console.log(this.enemies);
 	}
 }
 

@@ -42,7 +42,13 @@ var CANVAS_HEIGHT = 320 * 3;
 
 Game = require("./public/javascripts/game.js");
 
-game = new Game.Game(CANVAS_WIDTH, CANVAS_HEIGHT);
+var game = new Game.Game(CANVAS_WIDTH, CANVAS_HEIGHT);
+var update = function(){
+	game.update();
+}
+
+
+setInterval(update, 100);
 
 var io = require('socket.io').listen(server);
 io.set('log level', 1);
@@ -54,7 +60,6 @@ io.sockets.on('connection', function(socket) {
 	});
 
 	socket.on('getGame', function() {
-		game.update();
 		socket.volatile.emit('game', game.export());
 	});
 
