@@ -35,7 +35,7 @@ function Painter(color){
 	this.y = 0;
 	this.theta = 0;
 	this.exposes = [];
-	this.color = color || "green";
+	this.c = color || '255,40,155';
 	this.radius = 70;
 	this.active = true;
 	this.lastmove = {x : 0, y : 0};
@@ -63,20 +63,20 @@ Painter.prototype.update = function(x, y, theta, relevant){
 Painter.prototype.draw = function(context, xView, yView, relevant, time){
 	relevant = relevant || [0];
 
-
+	var outerthis = this;
 	if (this.active){
 		//drawCircle(context, this.x - xView, this.y - yView, this.radius, 5, this.color);
 		for (var i = 0; i < relevant.length; ++i) {
 			var xrand = Math.random();
             var yrand = Math.random();
 			var magnitude = relevant[i];
-			drawCircle(context, this.x + (xrand - 0.5)*10 - xView, this.y - yView +(yrand - 0.5)*10, 20 + relevant[i]*0.5, '#ff2525', false);
+			drawCircle(context, this.x + (xrand - 0.5)*10 - xView, this.y - yView +(yrand - 0.5)*10, relevant[i]*1.5, 'rgba('+outerthis.c+',0.9)', false);
 		}
 	}
 
 	this.exposes.forEach(function(data) {
 		drawCircle(context, data.x - xView, data.y - yView, 0.1 + data.r + Math.pow(relevant.average(),2.3)/1000, 2,
-					'rgba(255,40,155,'+ 9/10+')',  true);
+					'rgba(' + outerthis.c +',0.9)',  true);
 		data.r += (Math.random() - 0.5)*4;
 		data.x += (Math.random() - 0.5);
 		data.y += (Math.random() - 0.5);
