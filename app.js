@@ -228,7 +228,7 @@ io.sockets.on('connection', function(socket) {
 	});
 
 	socket.on('getPositions', function() {
-		socket.volatile.emit('pos', getPositions());
+		socket.emit('pos', getPositions());
 	});
 
 	socket.on('shoot', function() {
