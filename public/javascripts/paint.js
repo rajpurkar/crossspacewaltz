@@ -6,9 +6,13 @@ function Painter(color){
 	this.exposes = [];
 	this.color = color || "green";
 	this.radius = 70;
+	this.active = true;
 }
 
 Painter.prototype.update = function(x, y, theta){
+	if (!this.active)
+		return;
+
 	this.x = x;
 	this.y = y;
 	this.theta = theta;
@@ -19,17 +23,20 @@ Painter.prototype.update = function(x, y, theta){
 }
 
 Painter.prototype.draw = function(context, xView, yView){
+	if (this.active){
+		context.beginPath();
+
+		context.arc(this.x - xView, this.y - yView, this.radius, 0, 2 * Math.PI, false);
+		context.fillStyle = this.color;
+		context.fill();
+		context.lineWidth = 5;
+		context.strokeStyle = '#003300';
+
+		context.stroke();
+	}
+	
 	context.beginPath();
-
-	context.arc(this.x - xView, this.y - yView, this.radius, 0, 2 * Math.PI, false);
-	context.fillStyle = this.color;
-	context.fill();
-	context.lineWidth = 5;
-	context.strokeStyle = '#003300';
-
-	context.stroke();
-
-	context.beginPath();
+	
 	context.fillStyle = 'blue';
 	context.strokeStyle = '#003300';
 

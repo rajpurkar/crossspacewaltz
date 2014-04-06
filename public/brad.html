@@ -89,7 +89,7 @@
 			window.addEventListener('load', resizeGame, false);
 			window.addEventListener('orientationchange', resizeGame, false);
 
-			var socket = io.connect('http://10.34.190.89:3000/');
+			var socket = io.connect('http://10.31.225.17:3000/');
 
 			var context = gameCanvas.getContext('2d');
       
@@ -127,11 +127,17 @@
 
 			animate();
 
-			socket.on('pos', function(pos) {
-        painters[pos.id] = painters || new Painter("blue");
-        painters[pos.id].update(pos.x, pos.y, pos.theta);
-			});
+			socket.on('pos', function(data) {
+        if (data.id !== socket.id){
+          painters[data.id] = painters || new Painter("blue");
+          painters[data.id].update(data.pos.x, data.pos.y, data.pos.theta);
+        }
+      });
 
-        </script>
+      socket.on('left', function(id){
+        painters[data.id] && painters[data.id].active = false;
+      });
+
+      </script>
     </body>
 </html>
