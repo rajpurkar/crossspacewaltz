@@ -106,12 +106,11 @@
 
 			var painters = {};
       		var me = null;
-	    	var camera = null;
+	    	var camera = new GameObj.Camera(0, 0, canvas.width, canvas.height, WORLD_WIDTH, WORLD_HEIGHT);
             var map = new Map(WORLD_WIDTH, WORLD_HEIGHT, "images/dsw.jpg");
 	      	function initialize(){
 	        	me = painters[socket.id] = new Painter();
-	        	camera = new GameObj.Camera(0, 0, canvas.width, canvas.height, WORLD_WIDTH, WORLD_HEIGHT);
-	        	camera.follow(me, canvas.width / 2, canvas.height / 2);
+	        	camera.follow(me, canvas.width / 6, canvas.height / 6);
 	      	}
 
 			function writeMessage() {
@@ -119,6 +118,9 @@
 				context.fillStyle = 'black';
 				context.fillText('Position: ' + me.x + ',' + me.y, 10, 25);
 			}
+
+
+			var lastPos = {x: 0, y :0};
 
 			/*var initialX = gameCanvas.width / 2;
 			var initialY = gameCanvas.height / 2;
@@ -133,20 +135,44 @@
 				if (me === null)
 	          		initialize();
 
-	        	camera.update();
 	        	me.update(x, y, theta);
+	        	camera.update();
 				socket.emit('pos', {x : x, y: y, theta : theta});
 			}
 
+			var velocity = 4;
+
+			function moveViewWithMouse(){
+				if (me === null)
+					return;
+				if (lastPos.x + camera.xDeadZone > camera.wView && camera.xView < camera.worldRect.right){
+					me.x += velocity;
+					camera.update();
+				} else if (lastPos.x < camera.xDeadZone && camera.xView > 0) {
+					me.x -= velocity;
+					camera.update();
+				}
+
+				if (lastPos.y + camera.yDeadZone > camera.hView && camera.yView < camera.worldRect.bottom){
+					me.y += velocity;
+					camera.update();
+				} else if (lastPos.y < camera.yDeadZone && camera.yView > 0) {
+					me.y -= velocity;
+					camera.update();
+				}
+			}
+
+
 			function animate() {
+
+				moveViewWithMouse();
+
 				context.clearRect(0, 0, canvas.width, canvas.height);
 
                 drawCircle(context, Math.random()*canvas.width, Math.random()*canvas.height, 3, 1, (Math.random().toString(16) + '000000').slice(2, 8), true);
-                if (me !== null){
-                    map.draw(context, camera.xView, camera.yView);
-	        	  for (painter_id in painters){
-	          		   painters[painter_id].draw(context, camera.xView, camera.yView, relevant);
-	        	  }
+                map.draw(context, camera.xView, camera.yView);
+	        	for (painter_id in painters){
+	          		painters[painter_id].draw(context, camera.xView, camera.yView, relevant);
 	        	}
 
 				requestAnimFrame(function() {
@@ -176,11 +202,35 @@
 			}
 
 			canvas.addEventListener('mousemove', function(evt) {
+
 				mousePos = getMousePos(canvas, evt);
+				lastPos.x = mousePos.x;
+				lastPos.y = mousePos.y;
+
+				if (me !== null){
+				if (mousePos.x + camera.xDeadZone > camera.wView && camera.xView < camera.wView){
+					mousePos.x = me.x;
+				} else if (mousePos.x < camera.xDeadZone && camera.xView > 0) {
+					mousePos.x = me.x;
+				}
+				else{
+					mousePos.x += camera.xView;
+				}
+				if (mousePos.y + camera.yDeadZone > camera.hView && camera.yView < camera.hView){
+					mousePos.y = me.y;
+				} else if (mousePos.y < camera.yDeadZone && camera.yView > 0) {
+					mousePos.y = me.y;
+				}
+				else{
+					mousePos.y += camera.yView;
+				}
+				}
+				
 				updatePos(mousePos.x, mousePos.y, 0);
+			
 			}, false);
 
-			var currTime =0;
+			var currTime = 0;
 
 			window.audio = new Audio();
 			audio.src = 'http://a380.phobos.apple.com/us/r1000/090/Music/v4/00/66/fd/0066fd7d-b63f-3fa2-9b7c-1ddb53c7fd89/mzaf_6265862715750007654.aac.m4a';
