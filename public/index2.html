@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Space Demo</title>
+        <script language="javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js" type="text/javascript"></script>
+        <script language="javascript" src="javascripts/jquery.hotkeys.js" type="text/javascript"></script>
+        <script language="javascript" src="javascripts/key_status.js" type="text/javascript"></script>
+        <script language="javascript" src="javascripts/util.js" type="text/javascript"></script>
+        <script language="javascript" src="javascripts/sprite.js" type="text/javascript"></script>
+        <script language="javascript" src="javascripts/sound.js" type="text/javascript"></script>
+    </head>
+    <body>
+        <script src="/socket.io/socket.io.js"></script>
+        <script type='text/javascript'>
+			var socket = io.connect('http://10.34.190.89:3000/');
+            socket.emit('ready');
+
+			function sendShoot() {
+				Sound.play("shoot");
+				socket.emit('shoot');
+			}
+
+			//front end
+			var FPS = 15;
+			var CANVAS_WIDTH = 480;
+			var CANVAS_HEIGHT = 320;
+			var canvasElement = $("<canvas width='" + CANVAS_WIDTH + "' height='" + CANVAS_HEIGHT + "'></canvas");
+			var canvas = canvasElement.get(0).getContext("2d");
+			canvasElement.appendTo('body');
+
+			setInterval(function() {
+				update1();
+				//console.log("here");
+				socket.emit('getPositions');
+				socket.on('pos', function(data) {
+					poses = data;
+					draw(poses);
+				});
+			}, 1000 / FPS);
+
+			var plsp = Sprite("player");
+			var ensp = Sprite("enemy");
+
+			function drawPlayer(player) {
+				plsp.draw(canvas, player.x, player.y);
+			}
+
+			function drawEnemy(enemy) {
+				ensp.draw(canvas, enemy.x, enemy.y);
+			}
+
+			function drawBullet(bullet) {
+				canvas.fillStyle = bullet.color;
+				canvas.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+			}
+
+			function draw() {
+				var players = poses.players;
+				var bullets = poses.bullets;
+				var enem = poses.enemies;
+
+				canvas.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+                for (key in players){
+                    player = players[key];
+                    drawPlayer(player);
+
+                }
+
+				bullets.forEach(function(bullet) {
+					drawBullet(bullet);
+				});
+
+				enem.forEach(function(enemy) {
+					drawEnemy(enemy);
+				});
+			}
+
+			var myPos = {
+				'x' : 50,
+				'y' : 270
+			};
+
+
+			function playerMotionUpdate() {
+				if (keydown.left) {
+					//todo send player message
+					myPos.x += -5;
+				} else if (keydown.right) {
+					myPos.x += 5;
+				}
+			}
+
+			function update1() {
+				if (keydown.space) {
+					sendShoot();
+				}
+				playerMotionUpdate();
+				socket.emit('playerpos', {
+                 'x' : myPos.x,
+                 'y' : myPos.y
+             });
+			}
+
+        </script>
+    </body>
+</html>
