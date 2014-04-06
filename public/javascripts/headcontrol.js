@@ -126,7 +126,7 @@ function makePositionController(width, height){
 
     accumulatedY += 4 * Math.cos(Math.abs(angle));//transx;
     accumulatedX += 4 * Math.sin(-angle);//transy;
-  }
+}
 
   return control;
 };
