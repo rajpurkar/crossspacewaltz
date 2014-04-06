@@ -9,7 +9,7 @@ function makeHeadcontrol(videoInput, canvasInput){
   var headcontrol = {};
 
   headcontrol.start = function() {
-    htracker.start(); 
+    htracker.start();
   };
 
   headcontrol.getX = function(){
@@ -50,7 +50,7 @@ function makeHeadcontrol(videoInput, canvasInput){
 
   // library head movement tracker.
   var htracker = new headtrackr.Tracker({ui : false, calcAngles : true});
-  htracker.init(videoInput, canvasInput);    
+  htracker.init(videoInput, canvasInput);
 
   // position controller that interprets head movements.
   var positionControl = makePositionController(canvasInput.width, canvasInput.height);
@@ -83,6 +83,15 @@ function makeHeadcontrol(videoInput, canvasInput){
 };
 
 
+angle = 1.6;
+lastx = 0;
+lasty = 0;
+transy = 100;
+transyx = 100;
+Number.prototype.mod = function(n) {
+return ((this%n)+n)%n;
+}
+
 function makePositionController(width, height){
   var accumulatedX = 0;
   var accumulatedY = 0;
@@ -108,33 +117,22 @@ function makePositionController(width, height){
   control.faceMoved = function(x, y, theta){
     // x <- [-1, 1]
     // y <- [-1, 1]
-    x = -2 * (x / width - 0.5);
-    y =  2 * (y / height - 0.5);
-    
-    // for position based
-    // accumulatedX += x * control.velocity.x;
-    // accumulatedY += y * control.velocity.y;
+   transx = -(x / width - 0.5);
+   //console.log(transx);
+    angle = (angle + (0.1*transx)).mod(2*Math.PI);
+    /*console.log(angle*180/Math.PI);
+    transy =  transx + 40*Math.cos(Math.abs(angle));
+  	transx -= 40*Math.sin(angle);*/
 
-    // for angle based
-    theta = Math.atan(x / (y - 1));
-    thresh = 5;
-    if (theta > thresh || theta < -thresh){
-      theta = thresh;
-    }
-    var velocity = control.velocity.y;
-    y = -velocity * Math.sin(accumulatedTheta);
-    x = velocity * Math.cos(accumulatedTheta); 
-
-    accumulatedTheta += theta * 0.1;
-    accumulatedX += x;
-    accumulatedY += y;
+    accumulatedY += 4 * Math.cos(Math.abs(angle));//transx;
+    accumulatedX += 4 * Math.sin(-angle);//transy;
   }
 
   return control;
 };
 
 function makeHeadPosDrawer(width, height, ctx){
-  
+
   return function(x, y) {
 
     // normalise values
