@@ -49,6 +49,7 @@ var controller = Game.GameController(game);
 */
 
 var controller = function(socket){
+
 	socket.on("pos", function(pos){
 		socket.broadcast.emit("pos", {
 			id : socket.id,
@@ -57,9 +58,7 @@ var controller = function(socket){
 	});
 
 	socket.on('disconnect', function() {
-		socket.broadcast.emit("left", {
-			id : socket.id
-		});
+		socket.broadcast.emit("left", socket.id);
 	});
 }
 

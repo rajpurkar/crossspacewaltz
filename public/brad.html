@@ -128,14 +128,14 @@
 			animate();
 
 			socket.on('pos', function(data) {
-        if (data.id !== socket.id){
-          painters[data.id] = painters || new Painter("blue");
-          painters[data.id].update(data.pos.x, data.pos.y, data.pos.theta);
-        }
+        painters[data.id] = painters[data.id] || new Painter("blue");
+        painters[data.id].update(data.pos.x, data.pos.y, data.pos.theta);
       });
 
       socket.on('left', function(id){
-        painters[data.id] && painters[data.id].active = false;
+        if (painters[id]){
+            painters[id].active = false;
+        }
       });
 
       </script>
