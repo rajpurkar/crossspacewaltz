@@ -1,9 +1,9 @@
 var videoInput = document.getElementById('headtrackrVideo');
 var canvasInput = document.getElementById('headtrackrCanvas');
 
-var headcontrol = makeHeadcontrol(videoInput, canvasInput);
+/*var headcontrol = makeHeadcontrol(videoInput, canvasInput);
 headcontrol.start();
-
+*/
 function makeHeadcontrol(videoInput, canvasInput){
 
   var headcontrol = {};
