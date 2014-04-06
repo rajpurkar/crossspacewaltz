@@ -101,15 +101,16 @@
 			var WORLD_HEIGHT = canvas.height * 4;
 
 			var painters = {};
-			var me = null;
 
-			var camera = new GameObj.Camera(0, 0, canvas.width, canvas.height, WORLD_WIDTH, WORLD_HEIGHT);
-			var randos = [];
-			var map = new Map(WORLD_WIDTH, WORLD_HEIGHT, "images/brick.jpg");
-			function initialize() {
-				me = painters[socket.id] = new Painter();
-				camera.follow(me, canvas.width / 6, canvas.height / 6);
-			}
+      		var me = null;
+
+	    	var camera = new GameObj.Camera(0, 0, canvas.width, canvas.height, WORLD_WIDTH, WORLD_HEIGHT);
+	    	var randos = [];
+            var map = new Map(WORLD_WIDTH, WORLD_HEIGHT, "images/brick.jpg");
+	      	function initialize(){
+	        	me = painters[socket.id] = new Painter();
+	        	camera.follow(me, canvas.width / 10, canvas.height / 10);
+	      	}
 
 			function writeMessage() {
 				context.font = '18pt Calibri';
@@ -144,26 +145,23 @@
 				});
 			}
 
-			var velocity = 4;
+			var velocity = 10;
 
 			function moveViewWithMouse() {
 				if (me === null)
 					return;
 				if (lastPos.x + camera.xDeadZone > camera.wView && camera.xView < camera.worldRect.right) {
 					me.x += velocity;
-					camera.update();
 				} else if (lastPos.x < camera.xDeadZone && camera.xView > 0) {
 					me.x -= velocity;
-					camera.update();
 				}
 
 				if (lastPos.y + camera.yDeadZone > camera.hView && camera.yView < camera.worldRect.bottom) {
 					me.y += velocity;
-					camera.update();
 				} else if (lastPos.y < camera.yDeadZone && camera.yView > 0) {
 					me.y -= velocity;
-					camera.update();
 				}
+				updatePos(me.x, me.y, 0);
 			}
 
 			function animate() {
@@ -172,11 +170,12 @@
 
 				context.clearRect(0, 0, canvas.width, canvas.height);
 
-				drawCircle(context, Math.random() * canvas.width, Math.random() * canvas.height, 3, 1, (Math.random().toString(16) + '000000').slice(2, 8), true);
-				map.draw(context, camera.xView, camera.yView);
-				for (painter_id in painters) {
-					painters[painter_id].draw(context, camera.xView, camera.yView, relevant);
-				}
+                drawCircle(context, Math.random()*canvas.width, Math.random()*canvas.height, 3, 1, (Math.random().toString(16) + '000000').slice(2, 8), true);
+                map.draw(context, camera.xView, camera.yView);
+	        	for (painter_id in painters){
+	          		painters[painter_id].draw(context, camera.xView, camera.yView, relevant);
+	          	}
+
 				requestAnimFrame(function() {
 					animate();
 				});
