@@ -98,8 +98,8 @@
 			var canvas = document.getElementById('myCanvas');
 			var context = canvas.getContext('2d');
 
-			var WORLD_WIDTH = canvas.width * 1.5;
-			var WORLD_HEIGHT = canvas.height * 1.5;
+			var WORLD_WIDTH = canvas.width;
+			var WORLD_HEIGHT = canvas.height;
 
 			var painters = {};
 
@@ -107,12 +107,11 @@
 
 	    	var camera = new GameObj.Camera(0, 0, canvas.width, canvas.height, WORLD_WIDTH, WORLD_HEIGHT);
 	    	var randos = [];
-            var map = new Map(WORLD_WIDTH, WORLD_HEIGHT, "images/brick.jpg");
+            var map = new Map(WORLD_WIDTH, WORLD_HEIGHT, "images/wall.jpg");
 	      	function initialize(){
 	        	me = painters[socket.id] = new Painter();
-	        	camera.follow(me, canvas.width / 6, canvas.height / 6);
+	        	camera.follow(me, canvas.width / 10, canvas.height / 5);
 	      	}
-
 			function writeMessage() {
 				context.font = '18pt Calibri';
 				context.fillStyle = 'black';
