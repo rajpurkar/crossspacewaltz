@@ -31,7 +31,8 @@
             <video id="headtrackrVideo" autoplay loop class="mirror"></video>
         </div>
 
-        <div id="container"></div>
+
+        <div id="container">
 
         <script src="javascripts/headtrackr.js"></script>
         <script src="javascripts/headcontrol.js"></script>
@@ -39,6 +40,8 @@
         <div id='gameArea'>
             <canvas id='myCanvas'></canvas>
             <div id='statsPanel'></div>
+        </div>
+        <div id="myaudio"></div>
         </div>
         <script src="/socket.io/socket.io.js"></script>
         <script src="javascripts/jquery.js"></script>
@@ -77,13 +80,12 @@
         </script>
 
         <script src="javascripts/paint.js"></script>
-                <script src="javascripts/game.js"></script>
-<script>
-
-</script>
+        <script src="javascripts/game.js"></script>
+        <script></script>
         <script>
 
-        			window.requestAnimFrame = (function(callback) {
+
+			window.requestAnimFrame = (function(callback) {
 				return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame ||
 				function(callback) {
 					window.setTimeout(callback, 1000 / 60);
@@ -95,19 +97,19 @@
 			var canvas = document.getElementById('myCanvas');
 			var context = canvas.getContext('2d');
 
-            var WORLD_WIDTH = canvas.width * 4;
-            var WORLD_HEIGHT = canvas.height * 4;
+			var WORLD_WIDTH = canvas.width * 4;
+			var WORLD_HEIGHT = canvas.height * 4;
 
 			var painters = {};
-      		var me = null;
-      		
-	    	var camera = new GameObj.Camera(0, 0, canvas.width, canvas.height, WORLD_WIDTH, WORLD_HEIGHT);
-	    	var randos = [];
-            var map = new Map(WORLD_WIDTH, WORLD_HEIGHT, "images/brick.jpg");
-	      	function initialize(){
-	        	me = painters[socket.id] = new Painter();
-	        	camera.follow(me, canvas.width / 6, canvas.height / 6);
-	      	}
+			var me = null;
+
+			var camera = new GameObj.Camera(0, 0, canvas.width, canvas.height, WORLD_WIDTH, WORLD_HEIGHT);
+			var randos = [];
+			var map = new Map(WORLD_WIDTH, WORLD_HEIGHT, "images/brick.jpg");
+			function initialize() {
+				me = painters[socket.id] = new Painter();
+				camera.follow(me, canvas.width / 6, canvas.height / 6);
+			}
 
 			function writeMessage() {
 				context.font = '18pt Calibri';
@@ -115,33 +117,39 @@
 				context.fillText('Position: ' + me.x + ',' + me.y, 10, 25);
 			}
 
-
-			var lastPos = {x: 0, y :0};
+			var lastPos = {
+				x : 0,
+				y : 0
+			};
 
 			/*var initialX = gameCanvas.width / 2;
-			var initialY = gameCanvas.height / 2;
-			headcontrol.setVelocity(gameCanvas.width / 200, gameCanvas.height / 200);
-			headcontrol.addEventListener('pos', function(x, y, theta) {
-					        	x = initialX + x;
-	        	y = initialY + y;
-				updatePos(x, y, theta);
-			});*/
+			 var initialY = gameCanvas.height / 2;
+			 headcontrol.setVelocity(gameCanvas.width / 200, gameCanvas.height / 200);
+			 headcontrol.addEventListener('pos', function(x, y, theta) {
+			 x = initialX + x;
+			 y = initialY + y;
+			 updatePos(x, y, theta);
+			 });*/
 
-			function updatePos(x, y, theta){
+			function updatePos(x, y, theta) {
 				if (me === null)
-	          		initialize();
+					initialize();
 
-	        	me.update(x, y, theta);
-	        	camera.update();
-				socket.emit('pos', {x : x, y: y, theta : theta});
+				me.update(x, y, theta);
+				camera.update();
+				socket.emit('pos', {
+					x : x,
+					y : y,
+					theta : theta
+				});
 			}
 
 			var velocity = 4;
 
-			function moveViewWithMouse(){
+			function moveViewWithMouse() {
 				if (me === null)
 					return;
-				if (lastPos.x + camera.xDeadZone > camera.wView && camera.xView < camera.worldRect.right){
+				if (lastPos.x + camera.xDeadZone > camera.wView && camera.xView < camera.worldRect.right) {
 					me.x += velocity;
 					camera.update();
 				} else if (lastPos.x < camera.xDeadZone && camera.xView > 0) {
@@ -149,7 +157,7 @@
 					camera.update();
 				}
 
-				if (lastPos.y + camera.yDeadZone > camera.hView && camera.yView < camera.worldRect.bottom){
+				if (lastPos.y + camera.yDeadZone > camera.hView && camera.yView < camera.worldRect.bottom) {
 					me.y += velocity;
 					camera.update();
 				} else if (lastPos.y < camera.yDeadZone && camera.yView > 0) {
@@ -158,18 +166,17 @@
 				}
 			}
 
-
 			function animate() {
 
 				moveViewWithMouse();
 
 				context.clearRect(0, 0, canvas.width, canvas.height);
 
-                drawCircle(context, Math.random()*canvas.width, Math.random()*canvas.height, 3, 1, (Math.random().toString(16) + '000000').slice(2, 8), true);
-                map.draw(context, camera.xView, camera.yView);
-	        	for (painter_id in painters){
-	          		painters[painter_id].draw(context, camera.xView, camera.yView, relevant);
-
+				drawCircle(context, Math.random() * canvas.width, Math.random() * canvas.height, 3, 1, (Math.random().toString(16) + '000000').slice(2, 8), true);
+				map.draw(context, camera.xView, camera.yView);
+				for (painter_id in painters) {
+					painters[painter_id].draw(context, camera.xView, camera.yView, relevant);
+				}
 				requestAnimFrame(function() {
 					animate();
 				});
@@ -178,15 +185,15 @@
 			animate();
 
 			socket.on('pos', function(data) {
-	        	painters[data.id] = painters[data.id] || new Painter("blue");
-	        	painters[data.id].update(data.pos.x, data.pos.y, data.pos.theta);
-	      	});
+				painters[data.id] = painters[data.id] || new Painter("blue");
+				painters[data.id].update(data.pos.x, data.pos.y, data.pos.theta);
+			});
 
-	      	socket.on('left', function(id){
-	        	if (painters[id]){
-	            	painters[id].active = false;
-	        	}
-	      	});
+			socket.on('left', function(id) {
+				if (painters[id]) {
+					painters[id].active = false;
+				}
+			});
 
 			function getMousePos(canvas, evt) {
 				var rect = canvas.getBoundingClientRect();
@@ -196,33 +203,32 @@
 				};
 			}
 
+
 			canvas.addEventListener('mousemove', function(evt) {
 
 				mousePos = getMousePos(canvas, evt);
 				lastPos.x = mousePos.x;
 				lastPos.y = mousePos.y;
 
-				if (me !== null){
-				if (mousePos.x + camera.xDeadZone > camera.wView && camera.xView < camera.wView){
-					mousePos.x = me.x;
-				} else if (mousePos.x < camera.xDeadZone && camera.xView > 0) {
-					mousePos.x = me.x;
+				if (me !== null) {
+					if (mousePos.x + camera.xDeadZone > camera.wView && camera.xView < camera.wView) {
+						mousePos.x = me.x;
+					} else if (mousePos.x < camera.xDeadZone && camera.xView > 0) {
+						mousePos.x = me.x;
+					} else {
+						mousePos.x += camera.xView;
+					}
+					if (mousePos.y + camera.yDeadZone > camera.hView && camera.yView < camera.hView) {
+						mousePos.y = me.y;
+					} else if (mousePos.y < camera.yDeadZone && camera.yView > 0) {
+						mousePos.y = me.y;
+					} else {
+						mousePos.y += camera.yView;
+					}
 				}
-				else{
-					mousePos.x += camera.xView;
-				}
-				if (mousePos.y + camera.yDeadZone > camera.hView && camera.yView < camera.hView){
-					mousePos.y = me.y;
-				} else if (mousePos.y < camera.yDeadZone && camera.yView > 0) {
-					mousePos.y = me.y;
-				}
-				else{
-					mousePos.y += camera.yView;
-				}
-				}
-				
+
 				updatePos(mousePos.x, mousePos.y, 0);
-			
+
 			}, false);
 
 			var currTime = 0;
@@ -230,19 +236,20 @@
 			window.audio = new Audio();
 			audio.src = 'http://a380.phobos.apple.com/us/r1000/090/Music/v4/00/66/fd/0066fd7d-b63f-3fa2-9b7c-1ddb53c7fd89/mzaf_6265862715750007654.aac.m4a';
 			audio.controls = true;
-			audio.autoplay = true;
+			audio.autoplay = false;
 			//audio.loop = true;
 			audio.addEventListener('timeupdate', function(e) {
 				currTime = audio.currentTime;
 			}, false);
+            document.querySelector('#myaudio').appendChild(audio);
 
 			var relevant = [];
 			var numBars = 20;
 
 			(function() {
 				var interval = 1000 / 60;
-				var context;
-				var analyser;
+				var context = new webkitAudioContext();
+                var analyser = context.createAnalyser();
 
 				function rafCallback() {
 					setTimeout(function() {
@@ -251,7 +258,7 @@
 						analyser.getByteFrequencyData(freqByteData);
 						var SPACER_WIDTH = 25;
 						var BAR_WIDTH = 20;
-						var OFFSET = 600;
+						var OFFSET = 60;
 						var CUTOFF = 50;
 						relevant = [];
 						for (var i = 0; i < numBars; ++i) {
@@ -261,21 +268,23 @@
 					}, 30);
 				}
 
-				function onLoad(e) {
-					try {
-						// Fix up for prefixing
-						window.AudioContext = window.AudioContext || window.webkitAudioContext;
-						context = new AudioContext();
-					} catch(e) {
-						alert('Web Audio API is not supported in this browser');
-					}
-					var source = context.createMediaElementSource(audio);
-					analyser = context.createAnalyser();
-					source.connect(analyser);
-					analyser.minDecibels = -140;
-					analyser.smoothingTimeConstant = 0.89;
-					analyser.connect(context.destination);
+				function gotStream(stream) {
+					var source = context.createMediaStreamSource(stream);
+                    analyser.minDecibels = -70;
+                    analyser.smoothingTimeConstant = 0.8;
+                    source.connect(analyser);
 					rafCallback();
+				}
+
+				function onLoad(e) {
+					if (!navigator.webkitGetUserMedia)
+						return (alert("Error: getUserMedia not supported!"));
+
+					navigator.webkitGetUserMedia({
+						audio : true
+					}, gotStream, function(e) {
+						alert('Error getting audio');
+					});
 				}
 
 				// Need window.onload to fire first. See crbug.com/112368.
