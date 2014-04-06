@@ -203,7 +203,7 @@ function update2() {
 
 	handleCollisions();
 
-	if (Math.random() < 0.1) {
+	if (enemies.length <10 ) {
 		enemies.push(Enemy());
 	}
 }
