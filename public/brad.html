@@ -57,7 +57,7 @@
 
         <script src="/socket.io/socket.io.js"></script>
         <script src="javascripts/jquery.js"></script>
-
+        <script src="javascripts/paint.js"></script>
         <script>
 			var gameArea = document.getElementById('gameArea');
 			var gameCanvas = document.getElementById('gameCanvas');
@@ -85,7 +85,6 @@
 				gameCanvas.height = newHeight;
 			}
 
-
 			window.addEventListener('resize', resizeGame, false);
 			window.addEventListener('load', resizeGame, false);
 			window.addEventListener('orientationchange', resizeGame, false);
@@ -93,92 +92,34 @@
 			var socket = io.connect('http://10.34.190.89:3000/');
 
 			var context = gameCanvas.getContext('2d');
-			var mousePos = {
-				x : 0,
-				y : 0
-			};
-			var otherMouse = {};
+      
+      var painters = {};
+      var me = painters[socket.id] = new Painter();
 
 			function writeMessage() {
 				context.font = '18pt Calibri';
 				context.fillStyle = 'black';
-				context.fillText('Mouse position: ' + mousePos.x + ',' + mousePos.y, 10, 25);
-			}
-
-			function drawCircle(center, color) {
-				var radius = 70;
-				context.beginPath();
-				context.arc(center.x, center.y, radius, 0, 2 * Math.PI, false);
-				context.fillStyle = color;
-				context.fill();
-				context.lineWidth = 5;
-				context.strokeStyle = '#003300';
-				context.stroke();
-			}
-
-			function drawMousePosition() {
-				drawCircle(mousePos, 'green');
-			}
-
-			exposes = [];
-			function paint() {
-				var lastx = 0;
-				var lasty = 0;
-				context.beginPath();
-				context.fillStyle = 'blue';
-				context.fill();
-
-				context.strokeStyle = '#003300';
-
-				exposes.forEach(function(data) {
-					var center = data[0];
-					context.lineWidth = 3;
-					context.lineTo(center.x, center.y);
-						});
-				context.stroke();
-			}
-
-			function drawOtherMousePositions() {
-				for (var key in otherMouse) {
-					drawCircle(otherMouse[key], 'blue');
-				}
+				context.fillText('Position: ' + me.x + ',' + me.y, 10, 25);
 			}
 
 			var initialX = gameCanvas.width / 2;
 			var initialY = gameCanvas.height / 2;
 			headcontrol.setVelocity(gameCanvas.width / 200, gameCanvas.height / 200);
 			headcontrol.addEventListener('pos', function(x, y, theta) {
-				mousePos = {
-					x : initialX + x,
-					y : initialY + y
-				};
-				thick = 6 - 2 * theta;
-				if (thick < 1)
-					thick = 1;
-				exposes.push([mousePos, thick]);
-				socket.emit('msg', mousePos);
+				x = initialX + x;
+        y = initialY + y;
+
+        me.update(x, y, theta);
+				socket.emit('pos', {x : x, y: y, theta : theta});
 			});
 
-			function drawLine() {
-				context.beginPath();
-				context.moveTo(100, 150);
-				context.lineTo(450, 50);
-				context.stroke();
-			}
-
 			function animate() {
-				// update
-				// clear
 				context.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+        
+        for (painter_id in painters){
+          painters[painter_id].draw(context, 0, 0);
+        }
 
-				// draw stuff
-				writeMessage();
-				drawLine();
-				drawMousePosition();
-				paint();
-				drawOtherMousePositions();
-
-				// request new frame
 				requestAnimFrame(function() {
 					animate();
 				});
@@ -186,11 +127,9 @@
 
 			animate();
 
-			socket.on('lol', function(data) {
-				otherMouse[data.id] = {
-					x : data.pos.x,
-					y : data.pos.y
-				};
+			socket.on('pos', function(pos) {
+        painters[pos.id] = painters || new Painter("blue");
+        painters[pos.id].update(pos.x, pos.y, pos.theta);
 			});
 
         </script>

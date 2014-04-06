@@ -36,53 +36,15 @@ server.listen(app.get('port'), function() {
 	console.log('Express server listening on port ' + app.get('port'));
 });
 
-//todo later replace with real canvas dims
+Game = require("./public/javascripts/game.js");
+
 var CANVAS_WIDTH = 480 * 3;
 var CANVAS_HEIGHT = 320 * 3;
 
-Game = require("./public/javascripts/game.js");
-
 var game = new Game.Game(CANVAS_WIDTH, CANVAS_HEIGHT);
-var update = function(){
-	game.update();
-}
-
-
-setInterval(update, 100);
+setInterval(game.update.bind(game), 100);
 
 var io = require('socket.io').listen(server);
 io.set('log level', 1);
 
-io.sockets.on('connection', function(socket) {
-
-	socket.on('ready', function() {
-		game.addPlayer(socket.id);
-	});
-
-	socket.on('getGame', function() {
-		socket.volatile.emit('game', game.export());
-	});
-
-	socket.on('shoot', function() {
-		game.playerShoots(socket.id);
-	});
-
-	socket.on('disconnect', function() {
-		socket.broadcast.emit("left", {
-			id : socket.id
-		})
-		game.removePlayer(socket.id);
-	})
-
-	socket.on('playerpos', function(pos) {
-		game.updatePlayerPos(socket.id, pos);
-	});
-
-	socket.on('msg', function(data) {
-		socket.broadcast.emit('lol', {
-			id : socket.id,
-			pos : data
-		});
-	});
-
-});
+io.sockets.on('connection', Game.GameController(game));

@@ -316,9 +316,46 @@ function collides(a, b) {
 	return a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y;
 }
 
+var GameController = function(game){
+
+	return function(socket){
+		socket.on('ready', function() {
+			game.addPlayer(socket.id);
+		});
+
+		socket.on('getGame', function() {
+			socket.volatile.emit('game', game.export());
+		});
+
+		socket.on('shoot', function() {
+			game.playerShoots(socket.id);
+		});
+
+		socket.on('disconnect', function() {
+			socket.broadcast.emit("left", {
+				id : socket.id
+			})
+			game.removePlayer(socket.id);
+		})
+
+		socket.on('playerpos', function(pos) {
+			game.updatePlayerPos(socket.id, pos);
+		});
+
+		socket.on('msg', function(data) {
+			socket.broadcast.emit('lol', {
+				id : socket.id,
+				pos : data
+			});
+		});
+	}
+
+};
+
 exports.Enemy = Enemy;
 exports.Rectangle = Rectangle;	
 exports.Bullet = Bullet;	
 exports.Camera = Camera;
 exports.Player = Player;
 exports.Game = Game;
+exports.GameController = GameController;
