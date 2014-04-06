@@ -210,11 +210,12 @@ function update2() {
 
 function getPositions() {
 	update2();
-	return {
+	a = {
 		'players' : players,
 		'bullets' : playerBullets,
 		'enemies' : enemies
-	};
+	}
+	return a;
 }
 
 var io = require('socket.io').listen(server);
