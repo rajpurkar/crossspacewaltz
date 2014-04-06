@@ -1,4 +1,10 @@
 
+Painter = function(){
+
+	var drawCircle = function(x, y, radius, colorStyle){
+
+	}
+
 function Painter(color){
 	this.x = 0;
 	this.y = 0;
@@ -34,9 +40,9 @@ Painter.prototype.draw = function(context, xView, yView){
 
 		context.stroke();
 	}
-	
+
 	context.beginPath();
-	
+
 	context.fillStyle = 'blue';
 	context.strokeStyle = '#003300';
 
