@@ -58,6 +58,7 @@
         <script src="/socket.io/socket.io.js"></script>
         <script src="javascripts/jquery.js"></script>
         <script src="javascripts/paint.js"></script>
+        <script src="javascripts/game.js"></script>
         <script>
 			var gameArea = document.getElementById('gameArea');
 			var gameCanvas = document.getElementById('gameCanvas');
@@ -94,7 +95,14 @@
 			var context = gameCanvas.getContext('2d');
       
       var painters = {};
-      var me = painters[socket.id] = new Painter();
+      var me = null;
+      var camera = null;
+
+      function initialize(){
+        me = painters[socket.id] = new Painter();
+        camera = new GameObj.Camera(0, 0, gameCanvas.width, gameCanvas.height, gameCanvas.width * 4, gameCanvas.height * 4);
+        camera.follow(me, gameCanvas.width / 2, gameCanvas.height / 2);
+      } 
 
 			function writeMessage() {
 				context.font = '18pt Calibri';
@@ -106,9 +114,12 @@
 			var initialY = gameCanvas.height / 2;
 			headcontrol.setVelocity(gameCanvas.width / 200, gameCanvas.height / 200);
 			headcontrol.addEventListener('pos', function(x, y, theta) {
-				x = initialX + x;
+				if (me === null)
+          initialize();
+        x = initialX + x;
         y = initialY + y;
 
+        camera.update();
         me.update(x, y, theta);
 				socket.emit('pos', {x : x, y: y, theta : theta});
 			});
@@ -117,7 +128,7 @@
 				context.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
         
         for (painter_id in painters){
-          painters[painter_id].draw(context, 0, 0);
+          painters[painter_id].draw(context, camera.xView, camera.yView);
         }
 
 				requestAnimFrame(function() {
