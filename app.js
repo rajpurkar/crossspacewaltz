@@ -209,7 +209,6 @@ function update2() {
 }
 
 function getPositions() {
-	update2();
 	a = {
 		'players' : players,
 		'bullets' : playerBullets,
@@ -217,6 +216,8 @@ function getPositions() {
 	}
 	return a;
 }
+
+setInterval(update2, 100);
 
 var io = require('socket.io').listen(server);
 io.set('log level', 1);
