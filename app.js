@@ -39,7 +39,11 @@ server.listen(app.get('port'), function() {
 var io = require('socket.io').listen(server);
 
 io.sockets.on('connection', function(socket) {
-
+	socket.on('disconnect', function(){
+		socket.broadcast.emit("left", {
+			id: socket.id
+		})
+	})
 	socket.emit('news', {
 		hello : 'world'
 	});

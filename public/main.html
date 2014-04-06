@@ -159,7 +159,9 @@ function resizeGame() {
 
 			animate();
 
-
+socket.on('left', function(data){
+    delete otherMouse[data.id];
+})
 
             socket.on('lol', function(data) {
                 otherMouse[data.id] = {x:data.pos.x, y:data.pos.y};
