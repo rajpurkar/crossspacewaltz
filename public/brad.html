@@ -1,169 +1,198 @@
 <!DOCTYPE HTML>
 <html>
-<head>
-  <script>
-    window.requestAnimFrame = (function(callback) {
-    return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame ||
-    function(callback) {
-      window.setTimeout(callback, 1000 / 60);
-    };
-  })();
-  </script>
-  <style>
-  body {
-    margin: 0px;
-    padding: 0px;
-  }
-  .mirror{
-    -moz-transform: scale(-1, 1);
-    -webkit-transform: scale(-1, 1);
-    -o-transform: scale(-1, 1);
-    -ms-transform: scale(-1, 1);
-    transform: scale(-1, 1);
-  }
-  #myCanvas {
-    width: 100%;
-    height: 100%;
-    border: 1px solid #000;
-  }
-  #statsPanel {
-    position: absolute;
-    width: 100%;
-    height: 8%;
-    bottom: 0;
-    opacity: 0.8;
-    border: 2px solid;
-  }
-  #gameArea {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-  }
-  </style>
-</head>
-<body>
-  <div id="headtrackrContainer">
-    <canvas id="headtrackrCanvas" style="z-index:100;position:absolute" width="320" height="240"></canvas>
-    <video id="headtrackrVideo" autoplay loop class="mirror"></video>
-  </div>
+    <head>
+        <script>
+			window.requestAnimFrame = (function(callback) {
+				return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame ||
+				function(callback) {
+					window.setTimeout(callback, 1000 / 60);
+				};
+			})();
+        </script>
+        <style>
+			body {
+				margin: 0px;
+				padding: 0px;
+			}
+			.mirror {
+				-moz-transform: scale(-1, 1);
+				-webkit-transform: scale(-1, 1);
+				-o-transform: scale(-1, 1);
+				-ms-transform: scale(-1, 1);
+				transform: scale(-1, 1);
+			}
+			#myCanvas {
+				width: 100%;
+				height: 100%;
+				border: 1px solid #000;
+			}
+			#statsPanel {
+				position: absolute;
+				width: 100%;
+				height: 8%;
+				bottom: 0;
+				opacity: 0.8;
+				border: 2px solid;
+			}
+			#gameArea {
+				position: absolute;
+				left: 50%;
+				top: 50%;
+			}
+        </style>
+    </head>
+    <body>
+        <div id="headtrackrContainer">
+            <canvas id="headtrackrCanvas" style="z-index:100;position:absolute" width="320" height="240"></canvas>
+            <video id="headtrackrVideo" autoplay loop class="mirror"></video>
+        </div>
 
-  <script src="javascripts/headtrackr.js"></script>
-  <script src="javascripts/headcontrol.js"></script>
+        <script src="javascripts/headtrackr.js"></script>
+        <script src="javascripts/headcontrol.js"></script>
 
-  <div id='gameArea'>
-    <canvas id='gameCanvas'></canvas>
-    <div id='statsPanel'></div>
-  </div>
+        <div id='gameArea'>
+            <canvas id='gameCanvas'></canvas>
+            <div id='statsPanel'></div>
+        </div>
 
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="javascripts/jquery.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script src="javascripts/jquery.js"></script>
 
-  <script>
-    var gameArea = document.getElementById('gameArea');
-    var gameCanvas = document.getElementById('gameCanvas');
-    resizeGame();
-    function resizeGame() {
-      var widthToHeight = 4 / 3;
-      var newWidth = window.innerWidth;
-      var newHeight = window.innerHeight;
-      var newWidthToHeight = newWidth / newHeight;
+        <script>
+			var gameArea = document.getElementById('gameArea');
+			var gameCanvas = document.getElementById('gameCanvas');
+			resizeGame();
+			function resizeGame() {
+				var widthToHeight = 4 / 3;
+				var newWidth = window.innerWidth;
+				var newHeight = window.innerHeight;
+				var newWidthToHeight = newWidth / newHeight;
 
-      if (newWidthToHeight > widthToHeight) {
-        newWidth = newHeight * widthToHeight;
-        gameArea.style.height = newHeight + 'px';
-        gameArea.style.width = newWidth + 'px';
-      } else {
-        newHeight = newWidth / widthToHeight;
-        gameArea.style.width = newWidth + 'px';
-        gameArea.style.height = newHeight + 'px';
-      }
+				if (newWidthToHeight > widthToHeight) {
+					newWidth = newHeight * widthToHeight;
+					gameArea.style.height = newHeight + 'px';
+					gameArea.style.width = newWidth + 'px';
+				} else {
+					newHeight = newWidth / widthToHeight;
+					gameArea.style.width = newWidth + 'px';
+					gameArea.style.height = newHeight + 'px';
+				}
 
-      gameArea.style.marginTop = (-newHeight / 2) + 'px';
-      gameArea.style.marginLeft = (-newWidth / 2) + 'px';
+				gameArea.style.marginTop = (-newHeight / 2) + 'px';
+				gameArea.style.marginLeft = (-newWidth / 2) + 'px';
 
-      gameCanvas.width = newWidth;
-      gameCanvas.height = newHeight;
-    }
+				gameCanvas.width = newWidth;
+				gameCanvas.height = newHeight;
+			}
 
 
-    window.addEventListener('resize', resizeGame, false);
-    window.addEventListener('load', resizeGame, false);
-    window.addEventListener('orientationchange', resizeGame, false);
+			window.addEventListener('resize', resizeGame, false);
+			window.addEventListener('load', resizeGame, false);
+			window.addEventListener('orientationchange', resizeGame, false);
 
-    var socket = io.connect('http://10.34.190.89:3000/');
+			var socket = io.connect('http://10.34.190.89:3000/');
 
-    var context = gameCanvas.getContext('2d');
-    var mousePos = {
-      x : 0,
-      y : 0
-    };
-    var otherMouse = {};
+			var context = gameCanvas.getContext('2d');
+			var mousePos = {
+				x : 0,
+				y : 0
+			};
+			var otherMouse = {};
 
-    function writeMessage() {
-      context.font = '18pt Calibri';
-      context.fillStyle = 'black';
-      context.fillText('Mouse position: ' + mousePos.x + ',' + mousePos.y, 10, 25);
-    }
+			function writeMessage() {
+				context.font = '18pt Calibri';
+				context.fillStyle = 'black';
+				context.fillText('Mouse position: ' + mousePos.x + ',' + mousePos.y, 10, 25);
+			}
 
-    function drawCircle(center, color) {
-      var radius = 70;
-      context.beginPath();
-      context.arc(center.x, center.y, radius, 0, 2 * Math.PI, false);
-      context.fillStyle = color;
-      context.fill();
-      context.lineWidth = 5;
-      context.strokeStyle = '#003300';
-      context.stroke();
-    }
+			function drawCircle(center, color) {
+				var radius = 70;
+				context.beginPath();
+				context.arc(center.x, center.y, radius, 0, 2 * Math.PI, false);
+				context.fillStyle = color;
+				context.fill();
+				context.lineWidth = 5;
+				context.strokeStyle = '#003300';
+				context.stroke();
+			}
 
-    function drawMousePosition(){
-      drawCircle(mousePos, 'green');
-    }
+			function drawMousePosition() {
+				drawCircle(mousePos, 'green');
+			}
 
-    function drawOtherMousePositions(){
-      for (var key in otherMouse) {
-        drawCircle(otherMouse[key], 'blue');
-      }
-    }
+			exposes = [];
+			function paint() {
+				var lastx = 0;
+				var lasty = 0;
+				context.beginPath();
+				context.fillStyle = 'blue';
+				context.fill();
 
-    var initialX = gameCanvas.width / 2;
-    var initialY = gameCanvas.height / 2;
-    headcontrol.setVelocity(gameCanvas.width / 200, gameCanvas.height / 200);
-    headcontrol.addEventListener('pos', function(x, y){
-      mousePos = {x : initialX + x, y : initialY + y};
-      socket.emit('msg', mousePos);
-    });
+				context.strokeStyle = '#003300';
 
-    function drawLine() {
-      context.beginPath();
-      context.moveTo(100, 150);
-      context.lineTo(450, 50);
-      context.stroke();
-    }
+				exposes.forEach(function(data) {
+					var center = data[0];
+					context.lineWidth = 3;
+					context.lineTo(center.x, center.y);
+						});
+				context.stroke();
+			}
 
-    function animate() {
-      // update
-      // clear
-      context.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+			function drawOtherMousePositions() {
+				for (var key in otherMouse) {
+					drawCircle(otherMouse[key], 'blue');
+				}
+			}
 
-      // draw stuff
-      writeMessage();
-      drawLine();
-      drawMousePosition();
-      drawOtherMousePositions();
+			var initialX = gameCanvas.width / 2;
+			var initialY = gameCanvas.height / 2;
+			headcontrol.setVelocity(gameCanvas.width / 200, gameCanvas.height / 200);
+			headcontrol.addEventListener('pos', function(x, y, theta) {
+				mousePos = {
+					x : initialX + x,
+					y : initialY + y
+				};
+				thick = 6 - 2 * theta;
+				if (thick < 1)
+					thick = 1;
+				exposes.push([mousePos, thick]);
+				socket.emit('msg', mousePos);
+			});
 
-      // request new frame
-      requestAnimFrame(function() {
-        animate();
-      });
-    }
+			function drawLine() {
+				context.beginPath();
+				context.moveTo(100, 150);
+				context.lineTo(450, 50);
+				context.stroke();
+			}
 
-    animate();
+			function animate() {
+				// update
+				// clear
+				context.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 
-    socket.on('lol', function(data) {
-      otherMouse[data.id] = {x:data.pos.x, y:data.pos.y};
-    });
+				// draw stuff
+				writeMessage();
+				drawLine();
+				drawMousePosition();
+				paint();
+				drawOtherMousePositions();
 
-</script>
-</body>
+				// request new frame
+				requestAnimFrame(function() {
+					animate();
+				});
+			}
+
+			animate();
+
+			socket.on('lol', function(data) {
+				otherMouse[data.id] = {
+					x : data.pos.x,
+					y : data.pos.y
+				};
+			});
+
+        </script>
+    </body>
 </html>

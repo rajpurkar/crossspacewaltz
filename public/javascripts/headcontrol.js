@@ -20,6 +20,10 @@ function makeHeadcontrol(videoInput, canvasInput){
     return positionControl.getY();
   }
 
+  headcontrol.getTheta = function(){
+  	return positionControl.getTheta();
+  }
+
   headcontrol.setVelocity = function(velocity_x, velocity_y){
     positionControl.velocity.x = velocity_x;
     positionControl.velocity.y = velocity_y;
@@ -38,7 +42,7 @@ function makeHeadcontrol(videoInput, canvasInput){
   var invokeListeners = function(eventType){
     listeners.forEach(function(listener){
       if (listener.eventType === eventType){
-        listener.func && listener.func(headcontrol.getX(), headcontrol.getY());
+        listener.func && listener.func(headcontrol.getX(), headcontrol.getY(), headcontrol.getTheta());
       }
     });
   }
@@ -82,8 +86,6 @@ function makeHeadcontrol(videoInput, canvasInput){
 
 };
 
-
-angle = 1.6;
 lastx = 0;
 lasty = 0;
 transy = 100;
@@ -95,7 +97,8 @@ return ((this%n)+n)%n;
 function makePositionController(width, height){
   var accumulatedX = 0;
   var accumulatedY = 0;
-  var accumulatedTheta = 0;
+  var lastTheta = 0;
+  var angle = 1.6;
 
   control = {};
   control.velocity = {x : 1, y : 1};
@@ -114,18 +117,23 @@ function makePositionController(width, height){
     return startY + accumulatedY;
   }
 
+  control.getTheta = function(){
+  	return lastTheta;
+  }
+
   control.faceMoved = function(x, y, theta){
     // x <- [-1, 1]
     // y <- [-1, 1]
-   transx = -(x / width - 0.5);
+    lastTheta = theta;
+   transx = -((x / width) - 0.5);
    //console.log(transx);
-    angle = (angle + (0.1*transx)).mod(2*Math.PI);
+    angle = (angle + (0.3*transx)).mod(2*Math.PI);
     /*console.log(angle*180/Math.PI);
     transy =  transx + 40*Math.cos(Math.abs(angle));
   	transx -= 40*Math.sin(angle);*/
 
-    accumulatedY += 4 * Math.cos(Math.abs(angle));//transx;
-    accumulatedX += 4 * Math.sin(-angle);//transy;
+    accumulatedY += 1 * Math.cos(Math.abs(angle));//transx;
+    accumulatedX += 1 * Math.sin(-angle);//transy;
 }
 
   return control;
