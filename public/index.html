@@ -29,13 +29,35 @@
 			var canvas = canvasElement.get(0).getContext("2d");
 			canvasElement.appendTo('body');
 
+			var game = null;
+			var myPos = {};
+			var camera = null;
+
 			setInterval(function() {
 				update();
 				socket.emit('getGame');
-				socket.on('game', function(game) {
-					draw(game);
+				socket.on('game', function(newgame) {
+					if (game === null){
+						initialize(newgame);
+					}else{
+						game = newgame;
+					}
+					draw();
 				});
 			}, 1000 / FPS);
+
+			function initialize(firstGame){
+				game = firstGame;
+				myPos.x = game.worldWidth / 2;
+				myPos.y = game.worldHeight / 2;
+				camera = new GameObj.Camera(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT, game.worldWidth, game.worldHeight);
+				camera.follow(myPos, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
+				camera.update();
+				socket.emit('playerpos', {
+						'x' : myPos.x,
+						'y' : myPos.y
+				});
+			}
 
 			var plsp = Sprite("player");
 			var ensp = Sprite("enemy");
@@ -53,7 +75,7 @@
 				canvas.fillRect(bullet.x - xView, bullet.y - yView, bullet.width, bullet.height);
 			}
 
-			function draw(game) {
+			function draw() {
 				var players = game.players;
 				var bullets = game.bullets;
 				var enem = game.enemies;
@@ -77,23 +99,6 @@
 				});
 			}
 
-			var myPos = {
-				'x' : 50,
-				'y' : 270
-			};
-
-			// setup the magic camera !!!
-			var camera = new GameObj.Camera(0, 0, canvas.width, canvas.height, canvas.width * 3, canvas.height * 3);		
-			camera.follow(myPos, canvas.width/2, canvas.height/2);
-
-			function getMousePos(canvas, evt) {
-				var rect = canvas.getBoundingClientRect();
-				return {
-					x : evt.clientX - rect.left,
-					y : evt.clientY - rect.top
-				};
-			}
-
 			function playerMotionUpdate() {
 			    if (keydown.up) {
                     //todo send player message
@@ -106,10 +111,12 @@
 				if (keydown.left) {
 					//todo send player message
 					myPos.x += -5;
-				} else if (keydown.right) {
+				}
+				if (keydown.right) {
 					myPos.x += 5;
 				}
-				if (keydown.left || keydown.right) {
+				if (keydown.up || keydown.down || keydown.left || keydown.right){
+					camera.update();
 					socket.emit('playerpos', {
 						'x' : myPos.x,
 						'y' : myPos.y
@@ -118,11 +125,12 @@
 			}
 
 			function update() {
-				if (keydown.space) {
-					sendShoot();
+				if (game !== null){
+					if (keydown.space) {
+						sendShoot();
+					}
+					playerMotionUpdate();
 				}
-				playerMotionUpdate();
-				camera.update();
 			}
 
         </script>
