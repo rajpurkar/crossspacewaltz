@@ -44,7 +44,7 @@ Painter.prototype.update = function(x, y, theta, relevant){
 	}
 }
 
-Painter.prototype.draw = function(context, xView, yView, relevant){
+Painter.prototype.draw = function(context, xView, yView, relevant, time){
 	relevant = relevant || [0];
 
 
@@ -54,13 +54,14 @@ Painter.prototype.draw = function(context, xView, yView, relevant){
 			var xrand = Math.random();
             var yrand = Math.random();
 			var magnitude = relevant[i];
-			drawCircle(context, this.x + (xrand - 0.5)*10 - xView, this.y - yView + + (yrand - 0.5)*10, relevant[i]*0.5, '#ff2525', false);
+			drawCircle(context, this.x + (xrand - 0.5)*10 - xView, this.y - yView +(yrand - 0.5)*10, relevant[i]*1.5, '#ff2525', false);
 		}
 	}
+
 	this.exposes.forEach(function(data) {
-		drawCircle(context, data.x - xView, data.y - yView, 0.1 + data.r / 15 + Math.pow(relevant[0],2)/500, 2,
-					'rgba(200,100,255,'+(2+1)/10+')',  true);
-		data.r += (Math.random() - 0.5);
+		drawCircle(context, data.x - xView, data.y - yView, 0.1 + data.r + Math.pow(relevant[0],2.3)/1000, 2,
+					'rgba(255,40,155,'+ 9/10+')',  true);
+		data.r += (Math.random() - 0.5)*4;
 		data.x += (Math.random() - 0.5);
 		data.y += (Math.random() - 0.5);
 		if(data.r < 0) data.r = 1;

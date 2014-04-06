@@ -18,14 +18,6 @@
 				height: 100%;
 				border: 1px solid #000;
 			}
-			#statsPanel {
-				position: absolute;
-				width: 100%;
-				height: 8%;
-				bottom: 0;
-				opacity: 0.8;
-				border: 2px solid;
-			}
 			#gameArea {
 				position: absolute;
 				left: 50%;
@@ -55,7 +47,7 @@
 			resizeGame();
 			function resizeGame() {
 				var gameArea = document.getElementById('gameArea');
-				var widthToHeight = 4 / 3;
+				var widthToHeight = window.innerWidth / window.innerHeight;
 				var newWidth = window.innerWidth;
 				var newHeight = window.innerHeight;
 				var newWidthToHeight = newWidth / newHeight;
@@ -86,7 +78,9 @@
 
         <script src="javascripts/paint.js"></script>
                 <script src="javascripts/game.js"></script>
+<script>
 
+</script>
         <script>
 
         			window.requestAnimFrame = (function(callback) {
@@ -106,8 +100,10 @@
 
 			var painters = {};
       		var me = null;
+      		
 	    	var camera = new GameObj.Camera(0, 0, canvas.width, canvas.height, WORLD_WIDTH, WORLD_HEIGHT);
-            var map = new Map(WORLD_WIDTH, WORLD_HEIGHT, "images/dsw.jpg");
+	    	var randos = [];
+            var map = new Map(WORLD_WIDTH, WORLD_HEIGHT, "images/brick.jpg");
 	      	function initialize(){
 	        	me = painters[socket.id] = new Painter();
 	        	camera.follow(me, canvas.width / 6, canvas.height / 6);
@@ -173,7 +169,6 @@
                 map.draw(context, camera.xView, camera.yView);
 	        	for (painter_id in painters){
 	          		painters[painter_id].draw(context, camera.xView, camera.yView, relevant);
-	        	}
 
 				requestAnimFrame(function() {
 					animate();
