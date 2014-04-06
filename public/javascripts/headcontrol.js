@@ -49,7 +49,7 @@ function makeHeadcontrol(videoInput, canvasInput){
   headtrackrCtx.lineWidth = 2;
 
   // library head movement tracker.
-  var htracker = new headtrackr.Tracker({ui : false});
+  var htracker = new headtrackr.Tracker({ui : false, calcAngles : true});
   htracker.init(videoInput, canvasInput);    
 
   // position controller that interprets head movements.
@@ -62,7 +62,7 @@ function makeHeadcontrol(videoInput, canvasInput){
     return function (event){
       window.requestAnimFrame(function(){
         headtrackrCtx.clearRect(0, 0, canvasInput.width, canvasInput.height);
-        positionControl.faceMoved(event.x, event.y);
+        positionControl.faceMoved(event.x, event.y, event.angle);
         updateHeadPos(event.x, event.y);
         invokeListeners("pos");
       });
@@ -86,7 +86,7 @@ function makeHeadcontrol(videoInput, canvasInput){
 function makePositionController(width, height){
   var accumulatedX = 0;
   var accumulatedY = 0;
-  var lastX, lastY, lastTheta;
+  var accumulatedTheta = 0;
 
   control = {};
   control.velocity = {x : 1, y : 1};
@@ -105,14 +105,29 @@ function makePositionController(width, height){
     return startY + accumulatedY;
   }
 
-  control.faceMoved = function(x, y){
+  control.faceMoved = function(x, y, theta){
     // x <- [-1, 1]
     // y <- [-1, 1]
     x = -2 * (x / width - 0.5);
     y =  2 * (y / height - 0.5);
+    
+    // for position based
+    // accumulatedX += x * control.velocity.x;
+    // accumulatedY += y * control.velocity.y;
 
-    accumulatedX += x * control.velocity.x;
-    accumulatedY += y * control.velocity.y;
+    // for angle based
+    theta = Math.atan(x / (y - 1));
+    thresh = 5;
+    if (theta > thresh || theta < -thresh){
+      theta = thresh;
+    }
+    var velocity = control.velocity.y;
+    y = -velocity * Math.sin(accumulatedTheta);
+    x = velocity * Math.cos(accumulatedTheta); 
+
+    accumulatedTheta += theta * 0.1;
+    accumulatedX += x;
+    accumulatedY += y;
   }
 
   return control;
