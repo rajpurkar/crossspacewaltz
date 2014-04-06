@@ -1,3 +1,19 @@
+Array.prototype.average=function(){
+    var sum=0;
+    var j=0;
+    for(var i=0;i<this.length;i++){
+        if(isFinite(this[i])){
+          sum=sum+parseFloat(this[i]);
+           j++;
+        }
+    }
+    if(j===0){
+        return 0;
+    }else{
+        return sum/j;
+    }
+
+}
 
 Painter = function(){
 
@@ -59,7 +75,7 @@ Painter.prototype.draw = function(context, xView, yView, relevant, time){
 	}
 
 	this.exposes.forEach(function(data) {
-		drawCircle(context, data.x - xView, data.y - yView, 0.1 + data.r + Math.pow(relevant[0],2.3)/1000, 2,
+		drawCircle(context, data.x - xView, data.y - yView, 0.1 + data.r + Math.pow(relevant.average(),2.3)/1000, 2,
 					'rgba(255,40,155,'+ 9/10+')',  true);
 		data.r += (Math.random() - 0.5)*4;
 		data.x += (Math.random() - 0.5);
